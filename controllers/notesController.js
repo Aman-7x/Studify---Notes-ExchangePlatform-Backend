@@ -19,7 +19,7 @@ export const uploadNote = asyncHandler(async (req, res) => {
     throw new Error("No file uploaded. Please select a file.");
   }
 
-  if (!title || !description || !courseId || !universityId) {
+  if (!title || !description || !courseId || !universityId) { 
     fs.unlink(req.file.path, (err) => {
       if (err) console.error("Error deleting file:", err);
     });

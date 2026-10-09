@@ -183,13 +183,13 @@ export const getLoggedInUserFollowedCourses = asyncHandler(async (req, res) => {
 
 // @desc    Create a new course
 // @route   POST /api/v1/courses
-// @access  Private (Admin only)
+// @access  Private 
 export const createCourse = asyncHandler(async (req, res) => {
   const { name, code, description, university, branch } = req.body;
 
   // 1. Validate input
   if (!name || !code || !university) {
-    console.log(name, code, university);
+    // console.log(name, code, university);
 
     res.status(StatusCodes.BAD_REQUEST);
     throw new Error(
@@ -201,7 +201,7 @@ export const createCourse = asyncHandler(async (req, res) => {
     res.status(StatusCodes.BAD_REQUEST);
     throw new Error("Invalid University ID format.");
   }
-  console.log("run 1");
+  // console.log("run 1");
 
   const university1 = await University.findById(university);
   if (!university1) {

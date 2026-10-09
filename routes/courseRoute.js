@@ -15,6 +15,8 @@ import { adminValidation } from "../middlewares/adminValidy.js";
 
 const router = express.Router();
 
+router.post("/", validation, createCourse);
+router.put("/:id", validation, updateCourse);
 router.get("/my-followed", validation, getLoggedInUserFollowedCourses);
 router.get("/", getAllCourses);
 router.get("/:id", getCourseById);
@@ -24,8 +26,6 @@ router.post("/:id/follow", validation, followCourse);
 router.delete("/:id/unfollow", validation, unfollowCourse);
 
 // --- ADMIN-PROTECTED ROUTES FOR COURSE MANAGEMENT ---
-router.post("/", validation, createCourse);
-router.put("/:id", validation, updateCourse);
 router.delete("/:id", validation, adminValidation, deleteCourse);
 
 export default router;

@@ -21,7 +21,8 @@ export const validation = asyncHandler(async (req, res, next) => {
       "User is not authorized or token is missing. Session Expired."
     );
   }
-
+  // console.log("token : ",token);
+  
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findById(decoded.user._id).select("-password");
