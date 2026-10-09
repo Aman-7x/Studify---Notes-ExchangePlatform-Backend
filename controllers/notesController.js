@@ -30,7 +30,7 @@ export const uploadNote = asyncHandler(async (req, res) => {
   }
 
   const result = await cloudinary.v2.uploader.upload(req.file.path, {
-    resource_type: "image",
+    resource_type: "auto",
     folder: "notes",
   });
 
