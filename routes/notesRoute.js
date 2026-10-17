@@ -18,7 +18,7 @@ import {
 import { validation } from "../middlewares/validity.js";
 import multer from "multer";
  
-const upload = multer({ dest: "/uploads/notes" });
+const upload = multer({ dest: "./public/uploads/notes" });
 
 const router = express.Router(); 
 
