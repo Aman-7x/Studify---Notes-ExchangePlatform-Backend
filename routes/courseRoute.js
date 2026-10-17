@@ -10,15 +10,17 @@ import {
   createCourse,
   updateCourse,
   deleteCourse,
+  getTopCourses,
 } from "../controllers/courseController.js";
 import { adminValidation } from "../middlewares/adminValidy.js";
 
 const router = express.Router();
 
-router.post("/", validation, createCourse);
-router.put("/:id", validation, updateCourse);
+router.post("/", validation, createCourse); 
 router.get("/my-followed", validation, getLoggedInUserFollowedCourses);
 router.get("/", getAllCourses);
+router.get("/top", getTopCourses);
+router.put("/:id", validation, updateCourse);
 router.get("/:id", getCourseById);
 router.get("/university/:universityId", getCoursesByUniversity);
 

@@ -14,7 +14,8 @@ export const validation = asyncHandler(async (req, res, next) => {
   } else if (req.cookies && req.cookies.token) {
     token = req.cookies.token;
   }
-
+   
+  
   if (!token) {
     res.status(StatusCodes.UNAUTHORIZED);
     throw new Error(

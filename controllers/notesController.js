@@ -30,7 +30,7 @@ export const uploadNote = asyncHandler(async (req, res) => {
   }
 
   const result = await cloudinary.v2.uploader.upload(req.file.path, {
-    resource_type: "auto",
+    resource_type: "raw", 
     folder: "notes",
   });
 
@@ -116,6 +116,86 @@ export const getAllNotes = asyncHandler(async (req, res) => {
     .populate("university", "name")
     .sort({ createdAt: -1 });
 
+  res.status(StatusCodes.OK).json(notes);
+});
+// @desc    Get Top notes  
+// @route   GET /api/v1/notes/top
+// @access  Public
+export const getTopNotes = asyncHandler(async (req, res) => {
+  const limit=7;
+  // console.log('notes -1');
+  
+  const notes = await Note.aggregate([
+     {
+      // 1. Add a field for likes count since likes is an array of ObjectIds
+      $addFields: {
+        likesCount: { $size: "$likes" },
+      },
+    },
+    {
+      // 2. Sort by likesCount (descending) and then downloadCount (descending)
+      $sort: {
+        likesCount: -1,
+        downloadCount: -1,
+      },
+    },
+    {
+      // 3. Limit the results for the home page
+      $limit: limit,
+    },
+    {
+      // 4. Populate 'uploadedBy' (User details like name, profilePic)
+      $lookup: {
+        from: "users", // MongoDB collection name for User (usually lowercase plural)
+        localField: "uploadedBy",
+        foreignField: "_id",
+        as: "uploadedBy",
+      },
+    },
+    {
+      $unwind: {
+        path: "$uploadedBy",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      // 5. Populate 'course' details
+      $lookup: {
+        from: "courses",
+        localField: "course",
+        foreignField: "_id",
+        as: "course",
+      },
+    },
+    {
+      $unwind: {
+        path: "$course",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    {
+      // 6. Optional: Project/Select specific fields to keep the response lightweight
+      $project: {
+        _id:1,
+        title: 1,
+        description: 1,
+        file: 1,
+        branch: 1,
+        year: 1,
+        downloadCount: 1,
+        likesCount: 1,
+        dislikes:1,
+        createdAt: 1,
+        "uploadedBy.firstName": 1,
+        "uploadedBy.lastName": 1,
+        "uploadedBy.profilePic": 1,
+        "course.name": 1,
+        "course.code": 1,
+      },
+    }
+  ]) 
+    // console.log('notes : ', notes);
+    
   res.status(StatusCodes.OK).json(notes);
 });
 

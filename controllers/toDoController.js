@@ -54,7 +54,7 @@ export const createTodo = asyncHandler(async (req, res) => {
   const populatedTodo = await Todo.findById(todo._id)
     .populate("createdBy", "name email")
     .populate("studyList", "title description");
-  console.log(populatedTodo);
+  // console.log(populatedTodo);
 
   res.status(StatusCodes.CREATED).json(populatedTodo);
 });

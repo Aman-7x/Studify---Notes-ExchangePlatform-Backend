@@ -15,6 +15,7 @@ import {
   updateUserRole,
   deleteUser,
   verifyMe,
+  getUserAllData,
 } from "../controllers/userController.js";
 import { validation } from "../middlewares/validity.js";
 import { adminValidation } from "../middlewares/adminValidy.js";
@@ -27,6 +28,7 @@ router.post("/signin", loginUser);
 router.post("/logout", logoutUser);
 router.get("/verify", validation, verifyMe);
 // Protected routes
+router.get("/mylibrary", validation, getUserAllData);
 router.get("/profile", validation, getUserProfile);
 router.put("/profile", validation, updateUserProfile);
 router.put("/profile/password", validation, changePassword);

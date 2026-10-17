@@ -13,6 +13,7 @@ import {
   getNotesByUniversity,
   getNotesByUploader,
   getLoggedInUserUploadedNotes,
+  getTopNotes,
 } from "../controllers/notesController.js";
 import { validation } from "../middlewares/validity.js";
 import multer from "multer";
@@ -26,6 +27,7 @@ router.get("/my-uploads", validation, getLoggedInUserUploadedNotes);
 router.post("/upload", validation, upload.single("noteFile"), uploadNote);
 
 router.get("/", getAllNotes);
+router.get("/top", getTopNotes);
 router.get("/:id", getNoteById);
 
 router.get("/course/:courseId", getNotesByCourse);

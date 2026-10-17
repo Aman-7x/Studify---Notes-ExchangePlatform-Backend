@@ -32,14 +32,19 @@ export const createStudyList = asyncHandler(async (req, res) => {
     isPublic: isPublic !== undefined ? isPublic : false,
     notes: noteIds,
     createdBy: req.user._id,
-  });
+  }) 
 
   await User.findByIdAndUpdate(req.user._id, {
     $push: { savedStudyLists: studyList._id },
   });
-  console.log(studyList);
 
-  res.status(StatusCodes.CREATED).json(studyList);
+  const newStudyList = await StudyList.findById(studyList._id)
+    .populate("notes")
+    .populate("todos")
+    .populate("createdBy");
+  // console.log(studyList);
+
+  res.status(StatusCodes.CREATED).json(newStudyList);
 });
 
 export const getStudyLists = asyncHandler(async (req, res) => {
@@ -71,7 +76,7 @@ export const getUserStudyLists = asyncHandler(async (req, res) => {
     .populate("todos")
     .populate("createdBy")
     .sort({ createdAt: -1 });
-  console.log(studyLists);
+  // console.log(studyLists);
 
   res.status(StatusCodes.OK).json(studyLists);
 });
@@ -147,9 +152,14 @@ export const updateStudyList = asyncHandler(async (req, res) => {
 
   const updatedStudyList = await studyList.save();
 
+  const newStudyList = await StudyList.findById(updatedStudyList._id)
+    .populate("notes")
+    .populate("todos")
+    .populate("createdBy");
+
   res.status(StatusCodes.OK).json({
     message: "Study List updated successfully!",
-    studyList: updatedStudyList,
+    studyList: newStudyList,
   });
 });
 

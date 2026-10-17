@@ -41,6 +41,45 @@ export const getAllCourses = asyncHandler(async (req, res) => {
     .sort({ name: 1 });
   res.status(StatusCodes.OK).json(courses);
 });
+// @desc    Get TOP 10 courses 
+// @route   GET /api/v1/courses/top
+// @access  Public
+export const getTopCourses = asyncHandler(async (req, res) => { 
+  const courses = await Course.aggregate([
+    { 
+      $addFields: {
+        followersCount: { $size: { $ifNull: ["$followers", []] } },
+        notesCount: { $size: { $ifNull: ["$notes", []] } },
+      },
+    },
+    {
+      $addFields: {
+        // You can weight them if needed. E.g., notes are worth 2 points, followers worth 1 point.
+        // For equal weight, simply add them together:
+        totalScore: { $add: ["$followersCount", "$notesCount"] },
+      },
+    },
+    {
+      $sort: { totalScore: -1, createdAt: -1 }, // Sort by highest score, then newest
+    },
+    {
+      $limit: 10,
+    },
+    // Optional: Populate references if you need user/university details
+    {
+      $lookup: {
+        from: "universities",
+        localField: "university",
+        foreignField: "_id",
+        as: "university",
+      },
+    },
+    {
+      $unwind: "$university",
+    },
+  ]); 
+  res.status(StatusCodes.OK).json(courses);
+});
 
 // @desc    Get a single course by ID
 // @route   GET /api/v1/courses/:id

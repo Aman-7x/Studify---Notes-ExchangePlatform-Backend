@@ -10,14 +10,16 @@ import { Todo } from "../models/toDoSchema.js";
 import { StudyList } from "../models/studyListModel.js";
 import { Course } from "../models/courseModel.js";
 import { Feedback } from "../models/feedbackModel.js";
+import { cookieOptions } from "../configs/cookieConfig.js";
 
 // @desc    Verify user
 // @route   get /api/users/verify
 // @access  private
 
 export const verifyMe = asyncHandler(async (req, res) => {
-  // console.log(req.user);
-  res.json({ valid: true, user: req.user });
+  const user = req.user;
+  // console.log(user); 
+  res.json({ valid: true, user: user });
 });
 
 // @desc    Register a new user
@@ -64,15 +66,18 @@ export const registerUser = asyncHandler(async (req, res) => {
       { expiresIn: "5h" }
     );
 
-    res.cookie("token", token);
+    res.cookie("token", token,cookieOptions);
 
     res.status(StatusCodes.CREATED).json({
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
+       _id: user._id,
+    firstName: user.firstName,
+    lastName:user.lastName,
+    university:user.university,    
+    email: user.email,
+    profilePic: user.profilePic,
+    // token: token,
+    role: user.role,
       message: "User registered successfully",
-      token: token,
     });
   } else {
     res.status(StatusCodes.INTERNAL_SERVER_ERROR);
@@ -113,17 +118,21 @@ export const loginUser = asyncHandler(async (req, res) => {
       },
     },
     process.env.JWT_SECRET,
-    { expiresIn: "5h" }
+    { expiresIn: "1d" }
   );
 
-  res.cookie("token", token);
+  res.cookie("token", token,cookieOptions);
 
   res.status(StatusCodes.OK).json({
     _id: user._id,
     firstName: user.firstName,
+    lastName:user.lastName,
+    university:user.university,    
     email: user.email,
+    profilePic: user.profilePic,
+    // token: token,
+    role: user.role,
     message: "Logged in successfully",
-    token: token,
   });
 });
 
@@ -140,13 +149,53 @@ export const logoutUser = asyncHandler(async (req, res) => {
 // @access  Private
 export const getUserProfile = asyncHandler(async (req, res) => {
   if (req.user) {
+    // const user = await User.findById(req.user._id)
+    //   .populate("uploadedNotes")
+    //   .populate("todos")
+    //   .populate("followedCourses")
+    //   .populate("savedStudyLists")
+    //   .populate("courses").select("-password");
+    //   console.log('user data : ');
+      
+    // console.log(user);
+    // const user1 = {
+
+    // }
+    // res.status(StatusCodes.OK).json(user);
+
+    const user = await User.findById(req.user._id)
+    .select("_id firstName lastName email bio university profilePic uploadedNotes savedStudyLists followedCourses")
+    .populate({
+      path: "uploadedNotes",
+      select: "_id title description createdAt file university branch year" 
+    })
+    .populate({
+      path: "savedStudyLists",
+      select: "_id title description notes isPublic createdAt"
+    });
+
+  res.status(StatusCodes.OK).json(user);
+ 
+  } else {
+    res.status(StatusCodes.NOT_FOUND);
+    throw new Error("User not found");
+  }
+});
+
+// @desc    Get current user for my library
+// @route   GET /api/v1/users/mylibrary
+// @access  Private
+export const getUserAllData = asyncHandler(async (req, res) => {
+  if (req.user) {
     const user = await User.findById(req.user._id)
       .populate("uploadedNotes")
       .populate("todos")
       .populate("followedCourses")
       .populate("savedStudyLists")
-      .populate("courses");
+      .populate("courses").select("-password");
+  
     res.status(StatusCodes.OK).json(user);
+
   } else {
     res.status(StatusCodes.NOT_FOUND);
     throw new Error("User not found");
@@ -192,7 +241,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
       lastName: updatedUser.lastName,
       email: updatedUser.email,
       university: updatedUser.university,
-      bio: updatedUser.bio, // YAHAN EDIT KIYA GAYA HAI (Step 4)
+      bio: updatedUser.bio,  
       message: "Profile updated successfully",
     });
   } else {
