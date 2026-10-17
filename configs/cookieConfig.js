@@ -2,7 +2,7 @@
 
 export const cookieOptions = {
   httpOnly: true, //   (XSS protection)
-  secure: process.env.NODE_ENV === 'production', 
+  secure: true, 
   sameSite: 'none',  
-  maxAge: 1 * 24 * 60 * 60 * 1000 // 7 days expiry
+  maxAge: 1 * 24 * 60 * 60 * 1000 
 };
